@@ -1,0 +1,24 @@
+body {
+	background: #999;
+}
+#page {
+	background: #eee;
+}
+#page:after {
+	content: "Wide Layout";
+}
+nav {
+	float: left;
+	width: 15%;
+}
+section {
+	float: right;
+	width:80%;
+}
+footer {
+	clear: both;
+}
+nav a {
+	display: block;
+	text-align: left;
+}
