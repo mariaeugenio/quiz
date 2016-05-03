@@ -5,7 +5,9 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
+var session = require('express-session');
 var partials = require('express-partials');
+var flash = require('express-flash');
 
 var routes = require('./routes/index');
 
@@ -23,8 +25,12 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(session({secret: "Quiz 2016",
+                resave: false,
+                saveUnitialized: true}));
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use(flash());
 app.use('/', routes);
 
 // catch 404 and forward to error handler
