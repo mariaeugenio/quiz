@@ -52,3 +52,23 @@ exports.check = function(req, res, next) {
 								   result: result, 
 								   answer: answer });
 };
+
+// GET /quizzes/new
+exports.new = function(req, res, next) {
+	var quiz = models.Quiz.build({question: "", answer: ""});
+	res.render('quizzes/new', {quiz:quiz});
+};
+
+// POST /quizzes/create
+exports.create = function(req, res, next) {
+	var quiz = models.Quiz.build({question: req.body.quiz.question,
+								answer: req.body.quiz.answer});
+	// guarda en DB los campos pregunta y respuesta de quiz
+	quiz.save({fields: ["question", "answer"]})
+		.then(function(quiz) {
+			res.redirect('/quizzes');
+		})
+		.catch(function(error) {
+			next(error);
+		});
+};
