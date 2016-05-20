@@ -4,7 +4,7 @@ var router = express.Router();
 var quizController = require('../controllers/quiz_controller');
 var commentController = require('../controllers/comment_controller');
 
-/* GET home page. */
+/* GET home page */
 router.get('/', function(req, res, next) {
   res.render('index');
 });
