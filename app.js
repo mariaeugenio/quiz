@@ -29,10 +29,24 @@ app.use(cookieParser());
 app.use(session({secret: "Quiz 2016",
                 resave: false,
                 saveUnitialized: true}));
+app.use(session({secret: "Quiz 2016",
+                resave: false,
+                saveUnitialized: true}));
+app.use(session({secret: "Quiz 2016",
+                resave: false,
+                saveUnitialized: true}));
 app.use(methodOverride('_method', {methods: ["POST", "GET"]}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(flash());
+
+// Helper dinamico
+app.use(function(req, res, next) {
+  // Hacer visible req.session en las vistas
+  res.locals.session = req.session;
+  next();
+});
+
 app.use('/', routes);
 
 // catch 404 and forward to error handler
