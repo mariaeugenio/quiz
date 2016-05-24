@@ -1,0 +1,39 @@
+<section>
+
+<header>
+  <h2> Usuarios </h2>
+</header>
+
+<table>
+  <thead>
+    <tr>
+      <th>Username</th>
+      <th>Administrador</th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% for (var i in users) { %>
+      <tr>
+         <td> <%= users[i].username %>  </td>
+         <td> <%= users[i].isAdmin ? "Si" : "No" %> </td>
+         <td> <a href="/users/<%= users[i].id %>" > Ver </a>
+              <a href="/users/<%= users[i].id %>/edit"> Editar </a>
+              <a href="/users/<%= users[i].id %>?_method=DELETE" 
+                 onClick="return confirm('Borrar cuenta: <%= users[i].username %>');" >
+                 Borrar </a> 
+         </td>
+      </tr>
+    <%  }; %>
+  </tbody>
+</table>
+
+<footer>
+  <nav> 
+      <a href="/users/new" > 
+           Crear nuevo Usuario 
+      </a> 
+  </nav>
+</footer>
+<section>
