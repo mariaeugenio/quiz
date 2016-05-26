@@ -70,6 +70,18 @@ if (app.get('env') === 'development') {
   });
 }
 
+// En producción (Heroku) redirijo las peticiones http a https.
+// Documentacion: http://jaketrent.com/post/https-redirect-node-heroku/
+if (app.get('env') === 'production') {
+  app.use(function(req, res, next) {
+    if(req.headers['x-forwarded-proto'] !== 'https') {
+      res.redirect('https://'+ req.get('Host') + req.url);
+    } else {
+      next();
+    }
+  });
+}
+
 // production error handler
 // no stacktraces leaked to user
 app.use(function(err, req, res, next) {
