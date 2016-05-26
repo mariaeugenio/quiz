@@ -69,6 +69,7 @@ router.put('/quizzes/:quizId(\\d+)/comments/:commentId(\\d+)/accept',  	sessionC
 																		quizController.ownershipRequired,
 																		commentController.accept);
 
+
 /* GET author page. */
 router.get('/author', function(req, res, next) {
   res.render('author');
