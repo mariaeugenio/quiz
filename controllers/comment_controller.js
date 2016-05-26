@@ -6,13 +6,13 @@ exports.load = function(req, res, next, commentId) {
   models.Comment.findById(commentId)
     .then(function(comment) {
       if(comment) {
-        req.comment = comment;
+        req.comment=comment;
         next();
       } else {
-        next(new Error('No existe commentId=' +commentId));
+        next(new Error('No existe commentId=' + commentId));
       }
     })
-    .catch(function(error) {
+    .catch(function(error){
       next(error);
     });
 };
@@ -60,10 +60,10 @@ exports.accept = function(req, res, next) {
   req.comment.save(["accepted"])
     .then(function(comment) {
       req.flash('success', 'Comentario aceptado con éxito.');
-      req.redirect('/quizzes/' + req.params.quizId);
+      res.redirect('/quizzes/'+req.params.quizId);
     })
     .catch(function(error) {
-      req.flash('error', 'Error al aceptar un Comentario: '+error.message);
+      req.flash('error', 'Error al aceptar un comentario: '+error.message);
       next(error);
     });
 };
