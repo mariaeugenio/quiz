@@ -2,6 +2,7 @@ var models = require('../models');
 var Sequelize = require('sequelize');
 var cloudinary = require('cloudinary');
 var fs = require('fs');
+var Promise = require('promise');
 
 // Opciones para imagenes subidas a Cloudinary
 var cloudinary_image_options = { crop: 'limit', width: 200, height: 200, radius: 5,
@@ -9,7 +10,7 @@ var cloudinary_image_options = { crop: 'limit', width: 200, height: 200, radius:
 
 // Autoload el quiz asociado a :quizId
 exports.load = function(req, res, next, quizId) {
-    models.Quiz.findById(quizId, {include: [models.Comment]})
+    models.Quiz.findById(quizId, {include: [models.Comment, models.Attachment]})
         .then(function(quiz) {
             if (quiz) {
                 req.quiz = quiz;
@@ -35,7 +36,7 @@ exports.index = function(req, res, next) {
                 next(error);
             });
         } else {
-        models.Quiz.findAll().then(function(quizzes) {
+        models.Quiz.findAll({ include: [models.Attachment] }).then(function(quizzes) {
             res.render('quizzes/index', {quizzes: quizzes});
         })
         .catch(function(error){
@@ -90,11 +91,12 @@ exports.new = function(req, res, next) {
 };
 
 // POST /quizzes/create
-exports.create = function(req, res, next) {
+exports.create = function(req,res,next){
     var authorId = req.session.user && req.session.user.id || 0;
-    var quiz = models.Quiz.build({question: req.body.quiz.question,
-                                answer: req.body.quiz.answer,
-                                AuthorId: authorId});
+    var quiz = {    question: req.body.question, 
+                    answer: req.body.answer, 
+                    AuthorId: authorId 
+                };
     // Guarda en la tabla Quizzes el nuevo quiz
     models.Quiz.create(quiz)
         .then(function(quiz) {
@@ -126,44 +128,41 @@ exports.create = function(req, res, next) {
 };
 
 // PUT /quizzes/:id
-exports.update = function(req, res, next) {
-    req.quiz.question = req.body.quiz.question;
-    req.quiz.answer = req.body.quiz.answer;
-
-    req.quiz.save({fields: ["question", "answer"]})
+exports.update = function(req,res,next){
+    req.quiz.question = req.body.question;
+    req.quiz.answer = req.body.answer;
+    req.quiz.save({ fields: ["question", "answer"]})
         .then(function(quiz){
             req.flash('success', 'Pregunta y Respuesta editadas con éxito.');
-            // Sin imagen: Eliminar attachment e imagen viejos
-            if (!req.file) {
-                req.flash('info', 'Tenemos un Quiz sin imagen.');
-                if(quiz.Attachment) {
-                    cloudinary.api.delete_resources(quiz.Attachment.public_id);
-                    return quiz.Attachment.destroy();
-                }
-                return;
+        // Sin imagen: Eliminar attachment e imagen viejos
+        if (!req.file){
+            req.flash('info', 'Tenemos un Quiz sin imagen.');
+            if (quiz.Attachment){
+                cloudinary.api.delete_resources(quiz.Attachment.public_id);
+                return quiz.Attachment.destroy(); 
             }
-            // Salvar la imagen nueva en Cloudinary
-            return uploadResourceToCloudinary(req)
-                .then(function(uploadResult) {
-                    // Actualizar el attachment en la BBDD
-                    return updateAttachment(req, uploadResult, quiz);
-                });
-        })
-        .then(function() {
-            res.redirect('/quizzes');
-        })
-        .catch(Sequelize.ValidationError, function(error){
-            req.flash('error', 'Errores en el formulario:');
-            for(var i in error.errors) {
-                req.flash('error', error.errors[i].value);
-            };
-
-            res.render('quizzes/edit', {quiz: req.quiz});
-        })
-        .catch(function(error) {
-            req.flash('error', 'Error al editar el Quiz; '+error.message);
-            next(error);
-        });
+            return; 
+        }
+        // Salvar la imagen nueva en Cloudinary
+        return uploadResourceToCloudinary(req)
+            .then(function(uploadResult){
+            // Actualizar el Attachment en la BBDD.
+            return updateAttachment(req, uploadResult, quiz); 
+            });
+    })
+    .then(function(){
+        res.redirect('/quizzes'); 
+    })
+    .catch(Sequelize.ValidationError,function(error){ 
+        req.flash('error', 'Errores en el formulario: ');
+        for (var i in error.errors){
+            req.flash('error', error.errors[i].value);};
+        res.render('quizzes/edit', { quiz: req.quiz });
+    })
+    .catch(function(error){
+        req.flash('error', 'Error al editar el Quiz: ' +error.message);
+        next(error); 
+    });
 };
 
 // DELETE /quizzes/:id
