@@ -1,11 +1,13 @@
-<label for="preg">Pregunta:</label>
-<input type="text" id="preg" name="quiz[question]" value="<%= quiz.question %>" placeholder="Pregunta" /> <p>
 
-<label for="resp">Respuesta:</label>
-<input type="text" id="resp" name="quiz[answer]" value="<%= quiz.answer %>" placeholder="Respuesta" /> <p>
+	<label for="preg">Pregunta:</label>
+	<input type="text" id="preg" name="question" value="<%= quiz.question %>" placeholder="Pregunta" /> <p>
 
-<label for="img">Image:</label>
-<input type="file" id="img" accept="image/*" name="image" /><p>
+	<label for="resp">Respuesta:</label>
+	<input type="text" id="resp" name="answer" value="<%= quiz.answer %>" placeholder="Respuesta" /> <p>
 
-<a href="/quizzes"><button type="button">Cancelar</button></a>
-<input type="submit" value="Salvar">
+	<label for="img">Image:</label>
+	<input type="file" id="img" accept="image/*" name="image" /> <p>
+
+	<a href="/quizzes"><button type="button">Cancelar</button></a>
+
+	<input type="submit" value="Salvar">
