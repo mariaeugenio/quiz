@@ -10,7 +10,7 @@ var cloudinary_image_options = { crop: 'limit', width: 200, height: 200, radius:
 
 // Autoload el quiz asociado a :quizId
 exports.load = function(req, res, next, quizId) {
-    models.Quiz.findById(quizId, {include: [models.Comment, models.Attachment]})
+    models.Quiz.findById(quizId, {include: [{ model: models.Attachment }, { model: models.Comment, include: [{ model: models.User, as: 'Author' }]}]})
         .then(function(quiz) {
             if (quiz) {
                 req.quiz = quiz;
@@ -60,7 +60,9 @@ exports.index = function(req, res, next) {
 exports.show = function(req, res, next) {
     if ((req.params.format==='html') || (!req.params.format)) {
         var answer = req.query.answer || '';
-        res.render('quizzes/show', {quiz: req.quiz, answer: answer});
+        models.User.findAll({order: ['username']}).then(function(users) {
+                    res.render('quizzes/show', { quiz: req.quiz, answer: answer, users: users });
+                });             
     } else if (req.params.format === 'json') {
         res.send(JSON.stringify(req.quiz));
     } else {
@@ -82,6 +84,7 @@ exports.check = function(req, res, next) {
 exports.edit = function(req, res, next) {
     var quiz = req.quiz;
     res.render('quizzes/edit', {quiz: quiz});
+
 };
 
 // GET /quizzes/new
@@ -94,8 +97,7 @@ exports.new = function(req, res, next) {
 exports.create = function(req,res,next){
     var authorId = req.session.user && req.session.user.id || 0;
     var quiz = {    question: req.body.question, 
-                    answer: req.body.answer, 
-                    AuthorId: authorId 
+                    answer: req.body.answer
                 };
     // Guarda en la tabla Quizzes el nuevo quiz
     models.Quiz.create(quiz)

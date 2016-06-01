@@ -57,6 +57,10 @@ Quiz.belongsTo(User, {as: 'Author', foreignKey: 'AuthorId'});
 Attachment.belongsTo(Quiz);
 Quiz.hasOne(Attachment);
 
+// Relacion 1 a N entre User y Comment
+User.hasMany(Comment, { foreignKey: 'AuthorId' });
+Comment.belongsTo(User, { as: 'Author', foreignKey: 'AuthorId' });
+
 exports.Quiz = Quiz; // exportar definición de tabla Quiz
 exports.Comment = Comment; // exportar definicion de la tabla Comments
 exports.User = User;       // exportar definición de tabla Users
