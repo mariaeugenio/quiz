@@ -29,7 +29,7 @@ exports.index = function(req, res, next) {
     if ((req.params.format === 'html') || (!req.params.format)){
         if (req.query.search) {
             var search = '%' + req.query.search.split('').join('%') + '%';
-            models.Quiz.findAll({where: ["pregunta like ?", search]}).then(function(quizzes) {
+             models.Quiz.findAll({order: 'question', where: {question: {$like : "%"+search+"%" }}}).then(function(quizzes) {
                 res.render('quizzes/index', {quizzes:quizzes});
             })
             .catch(function(error){
